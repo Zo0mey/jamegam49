@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://ch56h2f7fxibh"]
+
+[ext_resource type="PackedScene" uid="uid://cu0i50bx8su3k" path="res://scenes/floor.tscn" id="1_i1jbm"]
+[ext_resource type="PackedScene" uid="uid://cwihxpfvmoewj" path="res://scenes/block_placing_area.tscn" id="2_hk8fp"]
+[ext_resource type="PackedScene" uid="uid://d4ars7pbyv1xl" path="res://scenes/wall.tscn" id="3_hk8fp"]
+
+[node name="PlayArea" type="Node2D"]
+
+[node name="BlockPlacingArea" parent="." instance=ExtResource("2_hk8fp")]
+position = Vector2(503, 52)
+
+[node name="LeftWall" parent="." instance=ExtResource("3_hk8fp")]
+position = Vector2(16, 231)
+
+[node name="RightWall" parent="." instance=ExtResource("3_hk8fp")]
+position = Vector2(1009, 230)
+
+[node name="Floor" parent="." instance=ExtResource("1_i1jbm")]
+position = Vector2(513, 639)
