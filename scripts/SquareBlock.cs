@@ -5,12 +5,12 @@ public partial class SquareBlock : CharacterBody2D
 {
 	[Export]
 	public int Speed { get; set; } = 400;
-	
+
 	[Export]
 	public int Gravitation { get; set; } = 2000;
-	
+
 	public bool CanBeMoved { get; set; } = true;
-	
+
 	public GameManager.BlockForm BlockForm = GameManager.BlockForm.Square;
 	public GameManager.BlockType BlockType { get; set; }
 
@@ -18,7 +18,7 @@ public partial class SquareBlock : CharacterBody2D
 	{
 		Vector2 inputDirection = Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down");
 
-		if (CanBeMoved && (inputDirection == Vector2.Left || inputDirection == Vector2.Right))
+		if (CanBeMoved && (inputDirection == Vector2.Left || inputDirection == Vector2.Right || inputDirection == Vector2.Down))
 		{
 			Velocity = inputDirection * Speed;
 			// add gravitation
