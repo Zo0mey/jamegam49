@@ -252,7 +252,10 @@ public partial class PlayerMovementController : CharacterBody2D
 					_airJumpsLeft = DoubleJumps;
 					_dashesLeft = Dashes;
 					_currState = State.Grounded;
+					break;
 				}
+
+				_currState = State.Airborne;
 				break;
 		}
 
