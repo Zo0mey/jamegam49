@@ -1,22 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://syk23senu406"]
+[gd_scene load_steps=5 format=3 uid="uid://syk23senu406"]
 
-[ext_resource type="Script" uid="uid://c1lgnm4t8fjh7" path="res://scripts/PlayerMovementController.cs" id="1_iyg1v"]
+[ext_resource type="PackedScene" uid="uid://cgwhkc5eexac3" path="res://scenes/player.tscn" id="1_wbyhl"]
 [ext_resource type="Texture2D" uid="uid://blyhdgdvq38wu" path="res://icon.svg" id="2_orwq5"]
 [ext_resource type="PackedScene" uid="uid://65g5osh0rg52" path="res://scenes/WallTest.tscn" id="3_wbyhl"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hondd"]
-size = Vector2(126, 126)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_wbyhl"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("2_orwq5")
-}],
-"loop": true,
-"name": &"default",
-"speed": 5.0
-}]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4gw67"]
 size = Vector2(1104, 50)
@@ -24,24 +10,7 @@ size = Vector2(1104, 50)
 [node name="2dControllerTest" type="Node2D"]
 metadata/_edit_horizontal_guides_ = [-265.0]
 
-[node name="CharacterBody2D" type="CharacterBody2D" parent="."]
-script = ExtResource("1_iyg1v")
-Gravity = 1000.0
-MaxRunSpeed = 500.0
-DoubleJumps = 0
-Dashes = 2
-MaxJumpHeight = 300.0
-HangTime = 0.1
-SlideSpeed = 10000.0
-JumpOffSpeed = 500.0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
-shape = SubResource("RectangleShape2D_hondd")
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D"]
-sprite_frames = SubResource("SpriteFrames_wbyhl")
-
-[node name="Camera2D" type="Camera2D" parent="CharacterBody2D"]
+[node name="CharacterBody2D" parent="." instance=ExtResource("1_wbyhl")]
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 
