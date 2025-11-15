@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cwihxpfvmoewj"]
+
+[ext_resource type="Script" uid="uid://biqy5mvkjif8p" path="res://scripts/BlockPlacingArea.cs" id="1_iryvl"]
+
+[node name="BlockPlacingArea" type="Node2D"]
+script = ExtResource("1_iryvl")
