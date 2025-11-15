@@ -44,19 +44,26 @@ public partial class PlayerMovementController : CharacterBody2D
 	[Export] public double JumpBuffer = 10;             // Duration in physics frames (at 60fps) a jump input is remembered if pressed slightly before landing.
 	[Export] public double BHopBoostFactor = 1.3;       // Multiplier applied to horizontal speed if jumping immediately upon landing (bunny hop).
 
+	[ExportGroup("Climbing")]
+	[Export] public double SlideSpeed = 100;
+	[Export] public float JumpOffSpeed = 100;
+
 	// --- Private Variables: System and Constants ---
-	private double _fps = Engine.GetPhysicsTicksPerSecond(); // Fetches the physics FPS (typically 60) for frame-based timer conversions.
+	private readonly double _fps = Engine.GetPhysicsTicksPerSecond(); // Fetches the physics FPS (typically 60) for frame-based timer conversions.
 	private const double _epsilonSpeed = 1e-2; // A very small speed value, used to consider velocity as effectively zero.
 
 	// --- Player State Management ---
-	private enum State {
+	private enum State
+	{
 		Grounded, // Player is on the floor.
 		Airborne, // Player is in the air (falling, jumping, or dashing).
-		Coyote    // Player has just walked off a ledge, allowing a brief window for a jump.
+		Coyote,    // Player has just walked off a ledge, allowing a brief window for a jump.
+		Wall
 	}
 	private State _currState; // Current primary state of the player.
 
-	private enum JumpState {
+	private enum JumpState
+	{
 		NotJumping, // Player is not currently in an active jump sequence (on ground or falling).
 		Ascent,     // Player is moving upwards as part of a jump.
 		Hanging     // Player is at the peak of the jump, experiencing reduced gravity (hang time).
@@ -145,6 +152,9 @@ public partial class PlayerMovementController : CharacterBody2D
 		bool upPressed = Input.IsActionPressed("up_arrow");       // Up movement button held (for dashing).
 		bool downPressed = Input.IsActionPressed("down_arrow");   // Down movement button held (for dashing).
 		bool onFloor = IsOnFloor();                               // Is the player currently touching the floor?
+		bool isOnWallOnly = IsOnWallOnly();
+		bool isOnLeftSideOfWall = GetWallNormal().X < 0;
+
 
 		// --- State Machine Logic ---
 		bool jumped = false; // Flag to indicate if a jump was initiated this frame.
@@ -184,8 +194,16 @@ public partial class PlayerMovementController : CharacterBody2D
 					{
 						_currState = State.Grounded; // Transition to grounded state
 					}
+					break;
 				}
-				else if (_airJumpsLeft > 0 && (jumpJustPressed || _jumpBuffered)) // Air jump
+
+				if (isOnWallOnly)
+				{
+					_currState = State.Wall;
+					break;
+				}
+
+				if (_airJumpsLeft > 0 && (jumpJustPressed || _jumpBuffered)) // Air jump
 				{
 					jumped = true;
 					StartJump(false); // Standard jump (uses air jump resource)
@@ -218,6 +236,24 @@ public partial class PlayerMovementController : CharacterBody2D
 					}
 				}
 				break;
+			case State.Wall:
+				if (isOnWallOnly)
+				{
+					if (jumpJustPressed || _jumpBuffered) // Jump input received
+					{
+						_currState = State.Airborne;
+						jumped = true;
+						WallJump(isOnLeftSideOfWall);
+					}
+					break;
+				}
+				if (onFloor)
+				{
+					_airJumpsLeft = DoubleJumps;
+					_dashesLeft = Dashes;
+					_currState = State.Grounded;
+				}
+				break;
 		}
 
 		// --- Jump State (NotJumping, Ascent, Hanging) ---
@@ -234,7 +270,7 @@ public partial class PlayerMovementController : CharacterBody2D
 				// Conditions to exit ascent phase:
 				// 1. Landed on the floor.
 				// 2. Vertical velocity was externally disrupted (e.g., hit a ceiling).
-				if (onFloor || (Velocity.Y != _prevVelocity.Y && Velocity.Y > _prevVelocity.Y)) // Second condition checks for unexpected halt/downward push
+				if (isOnWallOnly || onFloor || (Velocity.Y != _prevVelocity.Y && Velocity.Y > _prevVelocity.Y)) // Second condition checks for unexpected halt/downward push
 				{
 					ResetJumpHeightTimer(); // Stop tracking jump hold time
 					_currJumpState = JumpState.NotJumping;
@@ -251,7 +287,7 @@ public partial class PlayerMovementController : CharacterBody2D
 					double initialSpeed = Math.Sqrt(2 * Gravity * MaxJumpHeight); // Potential initial speed for max height
 					double timeSinceJumpStart = (MaxJumpHeldTime / _fps) - _jumpHeightTimer.TimeLeft; // Time button was held
 					double distanceTraveled = (initialSpeed * timeSinceJumpStart) - (0.5 * Gravity * Math.Pow(timeSinceJumpStart, 2)); // s = v0*t + 0.5*a*t^2
-					
+
 					// Calculate the new target velocity based on how long the jump was held
 					// (timeSinceJumpStart / (MaxJumpHeight / _fps)) is a typo in original, should be timeSinceJumpStart / (MaxJumpHeldTime / _fps) for proportion
 					double proportionOfMaxHold = timeSinceJumpStart / (MaxJumpHeldTime / _fps);
@@ -276,7 +312,7 @@ public partial class PlayerMovementController : CharacterBody2D
 				// 1. Landed on the floor.
 				// 2. Hang time expired.
 				// 3. Vertical velocity was externally disrupted.
-				if (onFloor || _jumpHangTimer.TimeLeft == 0 || (Velocity.Y != _prevVelocity.Y && Velocity.Y > 0) ) // Added check for downward disruption
+				if (isOnWallOnly || onFloor || _jumpHangTimer.TimeLeft == 0 || (Velocity.Y != _prevVelocity.Y && Velocity.Y > 0)) // Added check for downward disruption
 				{
 					ResetJumpHangTimer();   // Stop hang timer
 					ResetJumpHeightTimer(); // Ensure jump height timer is also reset
@@ -298,10 +334,17 @@ public partial class PlayerMovementController : CharacterBody2D
 
 		// --- Apply Gravity ---
 		// Apply if not grounded and not currently dashing (dash overrides gravity)
-		if (_currState != State.Grounded && _dashTimer.TimeLeft == 0)
+		if (_currState is not State.Grounded or State.Wall && _dashTimer.TimeLeft == 0)
 		{
 			vy += Gravity * delta;
 		}
+
+		if (_currState is State.Wall)
+		{
+			vx = 0;
+			vy = SlideSpeed * delta;
+		}
+
 
 		// --- Apply Jump Hang Anti-Gravity ---
 		// If in hang state, apply a force counteracting gravity to make the player float
@@ -317,19 +360,25 @@ public partial class PlayerMovementController : CharacterBody2D
 			{
 				vx -= GetRunAcceleration(-Velocity.X) * delta; // Accelerate left
 				if (Velocity.X >= -MaxRunSpeed) // Clamp to max speed if moving left or decelerating from right
+				{
 					vx = Math.Max(-MaxRunSpeed, vx);
+				}
 			}
 			else if (rightPressed && !leftPressed) // Moving right
 			{
 				vx += GetRunAcceleration(Velocity.X) * delta;  // Accelerate right
 				if (Velocity.X <= MaxRunSpeed) // Clamp to max speed if moving right or decelerating from left
+				{
 					vx = Math.Min(MaxRunSpeed, vx);
+				}
 			}
 			else // No horizontal input, apply friction
 			{
 				vx += GetGroundFriction(Velocity.X) * delta; // Apply ground friction
 				if (Math.Abs(vx) < _epsilonSpeed) // If speed is negligible, stop completely
+				{
 					vx = 0;
+				}
 			}
 		}
 
@@ -340,19 +389,25 @@ public partial class PlayerMovementController : CharacterBody2D
 			{
 				vx -= GetAirRunAcceleration(-Velocity.X) * delta; // Accelerate left
 				if (Velocity.X >= -MaxAirRunSpeed) // Clamp to max air speed
+				{
 					vx = Math.Max(-MaxAirRunSpeed, vx);
+				}
 			}
 			else if (rightPressed && !leftPressed) // Moving right in air
 			{
 				vx += GetAirRunAcceleration(Velocity.X) * delta;  // Accelerate right
 				if (Velocity.X <= MaxAirRunSpeed) // Clamp to max air speed
+				{
 					vx = Math.Min(MaxAirRunSpeed, vx);
+				}
 			}
 			else // No horizontal input in air, apply air friction
 			{
 				vx += GetAirFriction(Velocity.X) * delta;    // Apply air friction
 				if (Math.Abs(vx) < _epsilonSpeed) // If speed is negligible, stop completely
+				{
 					vx = 0;
+				}
 			}
 		}
 
@@ -362,10 +417,25 @@ public partial class PlayerMovementController : CharacterBody2D
 		{
 			int dirX = 0; // Horizontal dash direction component
 			int dirY = 0; // Vertical dash direction component
-			if (leftPressed) dirX--;
-			if (rightPressed) dirX++;
-			if (upPressed) dirY--;
-			if (downPressed) dirY++;
+			if (leftPressed)
+			{
+				dirX--;
+			}
+
+			if (rightPressed)
+			{
+				dirX++;
+			}
+
+			if (upPressed)
+			{
+				dirY--;
+			}
+
+			if (downPressed)
+			{
+				dirY++;
+			}
 
 			// Dash only if a direction key was pressed
 			if (!(dirX == 0 && dirY == 0))
@@ -389,33 +459,36 @@ public partial class PlayerMovementController : CharacterBody2D
 	/// Handles interactions with environmental elements based on collisions.
 	/// Called every physics frame.
 	/// </summary>
-	private void HandleEnviornment(double delta) 
+	private void HandleEnviornment(double delta)
 	{
 		// Iterate through all collisions that occurred in the last MoveAndSlide() call
-		for (int i = 0; i < GetSlideCollisionCount(); i++) 
+		for (int i = 0; i < GetSlideCollisionCount(); i++)
 		{
 			KinematicCollision2D collision = GetSlideCollision(i); // Get collision data
-			Node collider = collision.GetCollider() as Node; // Get the colliding node
+			var collider = collision.GetCollider() as Node; // Get the colliding node
 
-			if (collider == null) continue; // Skip if collider is not a valid Node
+			if (collider == null)
+			{
+				continue; // Skip if collider is not a valid Node
+			}
 
 			// Check if the collided object is a TerrainLayer to apply its friction
-			if (collider is TerrainLayer terrainLayer) 
+			if (collider is TerrainLayer terrainLayer)
 			{ // Assumes TerrainLayer is a custom C# class
-				// TODO: Potentially check if this is a floor collision (e.g., collision.GetNormal().Dot(Vector2.Up) > 0.7f)
+			  // TODO: Potentially check if this is a floor collision (e.g., collision.GetNormal().Dot(Vector2.Up) > 0.7f)
 				GroundFriction = terrainLayer.GroundFriction; // Update player's ground friction
 			}
 			// Check if the collided object is a LaunchPad to apply its launch effect
-			else if(collider is LaunchPad launchPad) 
+			else if (collider is LaunchPad launchPad)
 			{ // Assumes LaunchPad is a custom C# class
 				Vector2 normDir = launchPad.Direction.Normalized(); // Get launchpad's normalized direction
-				// Directly set velocity based on launchpad properties
-				Velocity = new Vector2((float)(normDir.X*launchPad.LaunchVelocity), (float)(normDir.Y*launchPad.LaunchVelocity));
+																	// Directly set velocity based on launchpad properties
+				Velocity = new Vector2((float)(normDir.X * launchPad.LaunchVelocity), (float)(normDir.Y * launchPad.LaunchVelocity));
 			}
 			// Check if the collided object is a MovingPlatform to apply its friction
-			else if(collider is MovingPlatform movingPlatform) 
+			else if (collider is MovingPlatform movingPlatform)
 			{ // Assumes MovingPlatform is a custom C# class
-				// TODO: Potentially check if this is a floor collision
+			  // TODO: Potentially check if this is a floor collision
 				GroundFriction = movingPlatform.GroundFriction; // Update player's ground friction based on platform
 			}
 		}
@@ -423,26 +496,36 @@ public partial class PlayerMovementController : CharacterBody2D
 
 
 	// --- Control Functions (Jump, Timers) ---
-	
+
 	/// <summary>
 	/// Initiates a jump.
 	/// </summary>
 	/// <param name="bhop">True if this is a bunny hop (jump immediately on landing), false otherwise.</param>
-	private void StartJump(bool bhop) 
+	private void StartJump(bool bhop)
 	{
 		ResetJumpBufferTimer(); // Consume any buffered jump
 		_jumpHeightTimer.Start(MaxJumpHeldTime / _fps); // Start timer for variable jump height based on hold duration
 
 		float newX = bhop ? Velocity.X * (float)BHopBoostFactor : Velocity.X; // Apply bhop speed boost if applicable
-		// Set initial upward velocity for the jump based on MaxJumpHeight and Gravity
-		// v = sqrt(2 * g * h)
+																			  // Set initial upward velocity for the jump based on MaxJumpHeight and Gravity
+																			  // v = sqrt(2 * g * h)
 		Velocity = new Vector2(newX, (float)-Math.Sqrt(2 * Gravity * MaxJumpHeight));
+	}
+
+	private void WallJump(bool jumpLeft)
+	{
+		ResetJumpBufferTimer(); // Consume any buffered jump
+		_jumpHeightTimer.Start(MaxJumpHeldTime / _fps); // Start timer for variable jump height based on hold duration
+														// float newY = (float)Math.Sqrt(2 * Gravity * MaxJumpHeight);
+		float newY = (float)-Math.Sqrt(2 * Gravity * MaxJumpHeight);
+		float newX = jumpLeft ? -JumpOffSpeed : JumpOffSpeed;
+		Velocity = new Vector2(newX, newY);
 	}
 
 	/// <summary>
 	/// Resets the jump buffer flag and stops its timer.
 	/// </summary>
-	private void ResetJumpBufferTimer() 
+	private void ResetJumpBufferTimer()
 	{
 		_jumpBuffered = false;
 		_jumpBufferTimer.Stop();
@@ -451,7 +534,7 @@ public partial class PlayerMovementController : CharacterBody2D
 	/// <summary>
 	/// Stops the coyote timer.
 	/// </summary>
-	private void ResetCoyoteTimer() 
+	private void ResetCoyoteTimer()
 	{
 		_coyoteTimer.Stop();
 	}
@@ -459,7 +542,7 @@ public partial class PlayerMovementController : CharacterBody2D
 	/// <summary>
 	/// Stops the jump hang timer.
 	/// </summary>
-	private void ResetJumpHangTimer() 
+	private void ResetJumpHangTimer()
 	{
 		_jumpHangTimer.Stop();
 	}
@@ -467,7 +550,7 @@ public partial class PlayerMovementController : CharacterBody2D
 	/// <summary>
 	/// Stops the jump height (hold) timer.
 	/// </summary>
-	private void ResetJumpHeightTimer() 
+	private void ResetJumpHeightTimer()
 	{
 		_jumpHeightTimer.Stop();
 	}
@@ -475,7 +558,7 @@ public partial class PlayerMovementController : CharacterBody2D
 	/// <summary>
 	/// Stops the dash timer and applies a velocity reduction.
 	/// </summary>
-	private void ResetDashTimer() 
+	private void ResetDashTimer()
 	{
 		_dashTimer.Stop();
 		// Reduce velocity when dash ends to provide a distinct end feel
@@ -491,11 +574,13 @@ public partial class PlayerMovementController : CharacterBody2D
 	/// </summary>
 	/// <param name="velocity">Current horizontal velocity in the direction of attempted movement.</param>
 	/// <returns>The calculated acceleration value.</returns>
-	private double GetRunAcceleration(double velocity) 
+	private double GetRunAcceleration(double velocity)
 	{
 		// If already at or exceeding max run speed in the direction of input, no more acceleration.
-		if(velocity >= MaxRunSpeed) 
+		if (velocity >= MaxRunSpeed)
+		{
 			return 0;
+		}
 
 		// Acceleration required to reach MaxRunSpeed in TimeToMaxRunSpeed frames.
 		// a = v_max / t_frames_to_v_max * physics_fps (to convert frame time to seconds for acceleration unit)
@@ -507,7 +592,7 @@ public partial class PlayerMovementController : CharacterBody2D
 	/// </summary>
 	/// <param name="velocity">Current horizontal velocity.</param>
 	/// <returns>The friction value (negative acceleration).</returns>
-	private double GetGroundFriction(double velocity) 
+	private double GetGroundFriction(double velocity)
 	{
 		// Friction is proportional to velocity and opposes motion.
 		return -GroundFriction * velocity;
@@ -519,11 +604,13 @@ public partial class PlayerMovementController : CharacterBody2D
 	/// </summary>
 	/// <param name="velocity">Current horizontal velocity in the direction of attempted movement.</param>
 	/// <returns>The calculated acceleration value.</returns>
-	private double GetAirRunAcceleration(double velocity) 
+	private double GetAirRunAcceleration(double velocity)
 	{
 		// If already at or exceeding max air run speed in the direction of input, no more acceleration.
-		if(velocity >= MaxAirRunSpeed) // Note: Original code had MaxRunSpeed here, corrected to MaxAirRunSpeed
+		if (velocity >= MaxAirRunSpeed) // Note: Original code had MaxRunSpeed here, corrected to MaxAirRunSpeed
+		{
 			return 0;
+		}
 
 		// Acceleration required to reach MaxAirRunSpeed in TimeToMaxAirRunSpeed frames.
 		return MaxAirRunSpeed / TimeToMaxAirRunSpeed * _fps;
@@ -534,7 +621,7 @@ public partial class PlayerMovementController : CharacterBody2D
 	/// </summary>
 	/// <param name="velocity">Current horizontal velocity.</param>
 	/// <returns>The friction value (negative acceleration).</returns>
-	private double GetAirFriction(double velocity) 
+	private double GetAirFriction(double velocity)
 	{
 		// Air friction is proportional to velocity and opposes motion.
 		return -AirFriction * velocity;
@@ -546,7 +633,7 @@ public partial class PlayerMovementController : CharacterBody2D
 	/// <param name="dist">The vertical distance already traveled since the jump started.</param>
 	/// <param name="mult">The proportion of MaxJumpHeldTime that the jump button was actually held (0.0 to 1.0).</param>
 	/// <returns>The new target upward velocity (will be negative or zero).</returns>
-	private double GetJumpNewVelocity(double dist, double mult) 
+	private double GetJumpNewVelocity(double dist, double mult)
 	{
 		// Calculate the target height based on how long the jump button was held.
 		double targetHeightBasedOnHold = MaxJumpHeight * mult;

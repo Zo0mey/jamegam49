@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://syk23senu406"]
+[gd_scene load_steps=7 format=3 uid="uid://syk23senu406"]
 
 [ext_resource type="Script" uid="uid://c1lgnm4t8fjh7" path="res://scripts/PlayerMovementController.cs" id="1_iyg1v"]
 [ext_resource type="Texture2D" uid="uid://blyhdgdvq38wu" path="res://icon.svg" id="2_orwq5"]
+[ext_resource type="PackedScene" uid="uid://65g5osh0rg52" path="res://scenes/WallTest.tscn" id="3_wbyhl"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hondd"]
 size = Vector2(126, 126)
@@ -18,18 +19,21 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4gw67"]
-size = Vector2(1113, 47)
+size = Vector2(1104, 50)
 
 [node name="2dControllerTest" type="Node2D"]
+metadata/_edit_horizontal_guides_ = [-265.0]
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="."]
 script = ExtResource("1_iyg1v")
 Gravity = 1000.0
 MaxRunSpeed = 500.0
-DoubleJumps = 5
+DoubleJumps = 0
 Dashes = 2
-MaxJumpHeight = 200.0
-HangTime = 10.0
+MaxJumpHeight = 300.0
+HangTime = 0.1
+SlideSpeed = 10000.0
+JumpOffSpeed = 500.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
 shape = SubResource("RectangleShape2D_hondd")
@@ -42,10 +46,16 @@ sprite_frames = SubResource("SpriteFrames_wbyhl")
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
-position = Vector2(14.5, 137.5)
+position = Vector2(10, 136)
 shape = SubResource("RectangleShape2D_4gw67")
 
 [node name="Sprite2D" type="Sprite2D" parent="StaticBody2D"]
-position = Vector2(14, 136.5)
-scale = Vector2(8.6875, 0.3671875)
+position = Vector2(7, 137.00003)
+scale = Vector2(8.3125, 0.3671875)
 texture = ExtResource("2_orwq5")
+
+[node name="StaticBody2D2" parent="." instance=ExtResource("3_wbyhl")]
+
+[node name="StaticBody2D3" parent="." instance=ExtResource("3_wbyhl")]
+position = Vector2(1418, -133)
+scale = Vector2(2, 2)
