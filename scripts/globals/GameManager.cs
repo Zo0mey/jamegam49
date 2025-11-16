@@ -8,7 +8,7 @@ namespace GameJam49Game.scripts.globals;
 
 public partial class GameManager : Node2D
 {
-    [Export] public int MaxSpawnedBlocks = 1;
+    [Export] public int MaxSpawnedBlocks = 10;
     public int SpawnedBlocks;
     public List<BlockData> BlockDataList;
     private GameState _currentState = GameState.Phase1;

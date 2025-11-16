@@ -21,7 +21,7 @@ scale = Vector2(1.0000004, 1)
 shape = SubResource("RectangleShape2D_iryvl")
 
 [node name="Line2D" type="Line2D" parent="MovementLine"]
-points = PackedVector2Array(-10.000001, 0, 9.9800005, 0)
+points = PackedVector2Array(-10.000001, 0, 10.440001, 0)
 
 [node name="SpawnArea" type="Area2D" parent="."]
 position = Vector2(0, -60)

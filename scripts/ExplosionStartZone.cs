@@ -24,6 +24,7 @@ public partial class ExplosionStartZone : Area2D
 
 	public async void StartExplosionsAsync()
 	{
+		CurrentExplosionHeight = 650;
 		if (IsInstanceValid(_spawnArea))
 		{
 			var area = _spawnArea.Shape.GetRect();
