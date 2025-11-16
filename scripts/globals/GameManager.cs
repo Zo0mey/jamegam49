@@ -8,7 +8,7 @@ namespace GameJam49Game.scripts.globals;
 
 public partial class GameManager : Node2D
 {
-    [Export] public int MaxSpawnedBlocks = 5;
+    [Export] public int MaxSpawnedBlocks = 1;
     public int SpawnedBlocks;
     public List<BlockData> BlockDataList;
     private GameState _currentState = GameState.Phase1;
@@ -46,6 +46,9 @@ public partial class GameManager : Node2D
                 _currentState = GameState.GameOver;
             }
         }
+        
+        GD.Print($"Player global height: {_player?.GlobalPosition.Y}");
+        GD.Print($"Player local height: {_player?.Position.Y}");
     }
 
     private Timer GetFlagTimer()

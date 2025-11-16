@@ -7,7 +7,7 @@ public partial class ExplosionStartZone : Area2D
 	[Export] public CollisionShape2D spawnArea;
 	[Export] public float ExplosionWidth = 32;
 	[Export] public float ExplosionHeight = 32;
-	[Export] public float VerticalWaitTime = 1;
+	[Export] public float VerticalWaitTime = 2;
 	[Export] public PackedScene ExplosionScene = GD.Load<PackedScene>("res://scenes/explosion.tscn");
 
 	public float CurrentExplosionHeight = float.MaxValue;
@@ -23,10 +23,13 @@ public partial class ExplosionStartZone : Area2D
 	public async void StartExplosionsAsync()
 	{
 		var area = spawnArea.Shape.GetRect();
-		float explosionXStart = spawnArea.GlobalPosition.X;
+		float explosionXStart = area.Position.X;
 		float explosionXEnd = explosionXStart + area.Size.X;
-		float explosionYStart = spawnArea.GlobalPosition.Y;
-		float explosionYEnd = explosionYStart - area.Size.Y;
+		float explosionYStart = area.End.Y;
+		float explosionYEnd = area.Position.Y;
+		
+		GD.Print($"Current Explosion Global width {explosionXStart} {explosionXEnd}");
+		GD.Print($"Current Explosion width {spawnArea.Position.X} {spawnArea.Position.X + area.Size.X}");
 
 		for (float explosionY = explosionYStart; explosionY > explosionYEnd; explosionY -= ExplosionHeight)
 		{

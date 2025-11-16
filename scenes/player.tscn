@@ -1,16 +1,16 @@
 [gd_scene load_steps=5 format=3 uid="uid://cgwhkc5eexac3"]
 
 [ext_resource type="Script" uid="uid://c1lgnm4t8fjh7" path="res://scripts/PlayerMovementController.cs" id="1_g2els"]
-[ext_resource type="Texture2D" uid="uid://blyhdgdvq38wu" path="res://icon.svg" id="2_qhqgy"]
+[ext_resource type="Texture2D" uid="uid://dxlwqeckkrlu0" path="res://assets/player.png" id="2_g2els"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hondd"]
-size = Vector2(126, 126)
+size = Vector2(84, 125)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_wbyhl"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("2_qhqgy")
+"texture": ExtResource("2_g2els")
 }],
 "loop": true,
 "name": &"default",
@@ -23,10 +23,12 @@ DoubleJumps = 0
 Dashes = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -0.5)
 shape = SubResource("RectangleShape2D_hondd")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(1.3, 1.3)
 sprite_frames = SubResource("SpriteFrames_wbyhl")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(3, 3)
+zoom = Vector2(0.8, 0.8)
