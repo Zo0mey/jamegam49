@@ -1,12 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://cshymd0ckeds5"]
+[gd_scene load_steps=4 format=3 uid="uid://bwgmqjgwkgbvl"]
 
-[ext_resource type="Texture2D" uid="uid://do2aws0olr7ws" path="res://assets/Flag.png" id="1_hdgai"]
+[ext_resource type="Script" uid="uid://bds5ddmap0uw5" path="res://scripts/Flag.cs" id="1_32e5v"]
+[ext_resource type="Texture2D" uid="uid://do2aws0olr7ws" path="res://assets/Flag.png" id="1_76ss4"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_step0"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_hdgai")
+"texture": ExtResource("1_76ss4")
 }],
 "loop": true,
 "name": &"default",
@@ -14,11 +15,12 @@ animations = [{
 }]
 
 [node name="Flag" type="Node2D"]
+script = ExtResource("1_32e5v")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area2D"]
+polygon = PackedVector2Array(0, -16, 0, -16, -34, -16, 0, -50, 5, -50, 5, 32, 1, 32)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_step0")
-
-[node name="StaticBody2D" type="StaticBody2D" parent="."]
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
-polygon = PackedVector2Array(0, -16, 0, -16, -34, -16, 0, -50, 5, -50, 5, 32, 1, 32)

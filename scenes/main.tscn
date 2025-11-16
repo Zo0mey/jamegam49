@@ -1,7 +1,16 @@
 [gd_scene load_steps=2 format=3 uid="uid://buqrstjywjuha"]
 
-[ext_resource type="PackedScene" path="res://scenes/play_area.tscn" id="1_o5qli"]
+[ext_resource type="PackedScene" uid="uid://ch56h2f7fxibh" path="res://scenes/play_area.tscn" id="1_o5qli"]
 
 [node name="Main" type="Node2D"]
 
 [node name="PlayArea" parent="." instance=ExtResource("1_o5qli")]
+
+[node name="WinGameDialog" type="AcceptDialog" parent="."]
+oversampling_override = 1.0
+title = "You win!"
+initial_position = 1
+size = Vector2i(206, 120)
+ok_button_text = "Restart"
+dialog_text = "You have won the game.
+Congrats!"

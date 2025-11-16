@@ -21,5 +21,4 @@ public partial class MovementLine : Area2D
             _gameManager.EmitSpawnNextBlock();
         }
     }
-
 }

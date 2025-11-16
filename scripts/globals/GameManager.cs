@@ -7,7 +7,7 @@ namespace GameJam49Game.scripts.globals;
 
 public partial class GameManager : Node2D
 {
-    [Export] public int MaxSpawnedBlocks = 3;
+    [Export] public int MaxSpawnedBlocks = 1;
     public int SpawnedBlocks;
     public List<BlockData> BlockDataList;
     private GameState _currentState = GameState.Phase1;
@@ -15,7 +15,7 @@ public partial class GameManager : Node2D
 
     [Signal]
     public delegate void SpawnNextBlockEventHandler();
-
+    
     private Timer GetFlagTimer()
     {
         Timer flagTimer = new Timer();
@@ -33,6 +33,25 @@ public partial class GameManager : Node2D
             GD.Print("Emitting spawn next block");
             EmitSignal(SignalName.SpawnNextBlock);
         }
+    }
+    
+    public void WinGame()
+    {
+        if (_currentState == GameState.Phase2)
+        {
+            GD.Print("Win Game");
+            var winGameDialog = GetNode<AcceptDialog>("/root/Main/WinGameDialog");
+            winGameDialog.Confirmed += RestartGame;
+            winGameDialog.Canceled += RestartGame;
+            winGameDialog.Show();
+        }
+    }
+
+    public void RestartGame()
+    {
+        _currentState = GameState.Phase1;
+        SpawnedBlocks = 0;
+        GetTree().ChangeSceneToFile("res://scenes/main.tscn");
     }
 
     public BlockData MapToBlockData(AnimatableBody2D animatableBody2D)
@@ -92,9 +111,10 @@ public partial class GameManager : Node2D
     {
         PackedScene playerScene = GD.Load<PackedScene>("res://scenes/player.tscn");
         CharacterBody2D player = playerScene.Instantiate<CharacterBody2D>();
+        Node2D mainScene = GetNode<Node2D>("/root/Main");
         player.Scale = new Vector2(0.25f, 0.25f);
         player.Position = new Vector2(450, 300);
-        AddChild(player);
+        mainScene.AddChild(player);
     }
     
     // Start Game -> automatisch
