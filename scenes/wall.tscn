@@ -7,15 +7,17 @@ rough = true
 bounce = 0.1
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c41w6"]
-size = Vector2(32, 16)
+size = Vector2(32, 5.62)
 
 [node name="Wall" type="StaticBody2D"]
 physics_material_override = SubResource("PhysicsMaterial_kuqtn")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -259.5)
 scale = Vector2(1, 50)
 shape = SubResource("RectangleShape2D_c41w6")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(1, 200)
+position = Vector2(0, -258.5)
+scale = Vector2(1, 70.75)
 texture = ExtResource("1_wykyb")

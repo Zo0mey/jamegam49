@@ -51,7 +51,7 @@ public partial class BlockPlacingArea : Node2D
         SquareBlock instantiatedBlock = squareBlockScene.Instantiate<SquareBlock>();
         float randomScale = _rng.RandfRange(0.5f, 2.5f);
 
-        if (_gameManager.SpawnedBlocks == _gameManager.MaxSpawnedBlocks) 
+        if (_gameManager.SpawnedBlocks + 1 == _gameManager.MaxSpawnedBlocks) 
         {
             instantiatedBlock.Scale = new Vector2(1, 1);
         }

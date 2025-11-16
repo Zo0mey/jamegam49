@@ -24,9 +24,9 @@ scale = Vector2(32, 4)
 texture = ExtResource("1_ukw5w")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="."]
-offset_left = -513.0
+offset_left = -2878.0
 offset_top = -8.0
-offset_right = 514.0
+offset_right = 2891.0
 offset_bottom = 7.0
 texture = ExtResource("2_kuqtn")
 axis_stretch_horizontal = 1
