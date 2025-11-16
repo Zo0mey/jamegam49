@@ -41,7 +41,7 @@ public partial class GameManager : Node2D
 
         if (_currentState == GameState.Phase2)
         {
-            if (_explosionStartZone.CurrentExplosionHeight < _player?.GlobalPosition.Y)
+            if (IsInstanceValid(_player) && _explosionStartZone.CurrentExplosionHeight < _player?.GlobalPosition.Y)
             {
                 GD.Print($"Gameover: {_explosionStartZone.CurrentExplosionHeight} / {_player?.GlobalPosition.Y}");
                 LoseGame();
@@ -90,7 +90,7 @@ public partial class GameManager : Node2D
             GD.Print("Lose Game");
             var winGameDialog = GetNode<AcceptDialog>("/root/Main/WinGameDialog");
             winGameDialog.Title = "You Lost!";
-            winGameDialog.DialogText = "You lost the game. Try again.";
+            winGameDialog.DialogText = "You lost the game. \nThe explosions got to you. \nYou need to climb to safety. \nTry again and find the flag.";
             winGameDialog.Confirmed += RestartGame;
             winGameDialog.Canceled += RestartGame;
             winGameDialog.Show();

@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://cc86icf4xfn88"]
+
+[ext_resource type="Texture2D" uid="uid://kfbuf25bw27h" path="res://assets/background.png" id="1_bkp1e"]
+
+[node name="Background" type="Node2D"]
+
+[node name="NinePatchRect" type="NinePatchRect" parent="."]
+offset_left = -1269.0
+offset_top = -699.0
+offset_right = 2378.0
+offset_bottom = 1487.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = ExtResource("1_bkp1e")
+region_rect = Rect2(0, 0, 128, 128)
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1

@@ -12,29 +12,33 @@ public partial class ExplosionStartZone : Area2D
 	public float CurrentExplosionHeight = float.MaxValue;
 
 	private Timer _rowSpawnTimer = new Timer();
+	private CollisionShape2D _spawnArea = null!;
 
 	public override void _Ready()
 	{
+		_spawnArea = GetNode<CollisionShape2D>("SpawnArea");
 		_rowSpawnTimer.WaitTime = VerticalWaitTime;
 		AddChild(_rowSpawnTimer);
 	}
 
 	public async void StartExplosionsAsync()
 	{
-		var spawnArea = GetNode<CollisionShape2D>("CollisionShape2D");
-		var area = spawnArea.Shape.GetRect();
-		float explosionXStart = area.Position.X;
-		float explosionXEnd = explosionXStart + area.Size.X;
-		float explosionYStart = spawnArea.Position.Y + area.End.Y * spawnArea.Scale.Y;
-		float explosionYEnd = spawnArea.Position.Y - area.End.Y * spawnArea.Scale.Y;
-
-		for (float explosionY = explosionYStart; explosionY > explosionYEnd; explosionY -= ExplosionHeight)
+		if (IsInstanceValid(_spawnArea))
 		{
-			_rowSpawnTimer.Start();
-			await ToSignal(_rowSpawnTimer, "timeout");
-			CurrentExplosionHeight = explosionY + 600;
-			GD.Print("Current explosion height: ", CurrentExplosionHeight);
-			await SpawnExplosionRow(explosionY, explosionXStart, explosionXEnd);
+			var area = _spawnArea.Shape.GetRect();
+			float explosionXStart = area.Position.X;
+			float explosionXEnd = explosionXStart + area.Size.X;
+			float explosionYStart = _spawnArea.Position.Y + area.End.Y * _spawnArea.Scale.Y;
+			float explosionYEnd = _spawnArea.Position.Y - area.End.Y * _spawnArea.Scale.Y;
+
+			for (float explosionY = explosionYStart; explosionY > explosionYEnd; explosionY -= ExplosionHeight)
+			{
+				_rowSpawnTimer.Start();
+				await ToSignal(_rowSpawnTimer, "timeout");
+				CurrentExplosionHeight = explosionY + 600;
+				GD.Print("Current explosion height: ", CurrentExplosionHeight);
+				await SpawnExplosionRow(explosionY, explosionXStart, explosionXEnd);
+			}
 		}
 	}
 

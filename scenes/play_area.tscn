@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://ch56h2f7fxibh"]
+[gd_scene load_steps=7 format=3 uid="uid://ch56h2f7fxibh"]
 
 [ext_resource type="PackedScene" uid="uid://cu0i50bx8su3k" path="res://scenes/floor.tscn" id="1_i1jbm"]
+[ext_resource type="PackedScene" uid="uid://cc86icf4xfn88" path="res://scenes/background.tscn" id="1_yjffj"]
 [ext_resource type="PackedScene" uid="uid://cwihxpfvmoewj" path="res://scenes/block_placing_area.tscn" id="2_hk8fp"]
 [ext_resource type="PackedScene" uid="uid://d4ars7pbyv1xl" path="res://scenes/wall.tscn" id="3_hk8fp"]
 [ext_resource type="Script" uid="uid://dld3vs0wvpku6" path="res://scripts/ExplosionStartZone.cs" id="4_b00k2"]
@@ -9,6 +10,9 @@
 size = Vector2(1030, 506)
 
 [node name="PlayArea" type="Node2D"]
+
+[node name="Background" parent="." instance=ExtResource("1_yjffj")]
+z_index = -1000
 
 [node name="BlockPlacingArea" parent="." instance=ExtResource("2_hk8fp")]
 position = Vector2(503, 52)
@@ -24,10 +28,9 @@ position = Vector2(1011, 231)
 [node name="Floor" parent="." instance=ExtResource("1_i1jbm")]
 position = Vector2(513, 639)
 
-[node name="ExplosionStartZone" type="Area2D" parent="." node_paths=PackedStringArray("spawnArea")]
+[node name="ExplosionStartZone" type="Area2D" parent="."]
 position = Vector2(513, 639)
 script = ExtResource("4_b00k2")
-spawnArea = NodePath("SpawnArea")
 
 [node name="SpawnArea" type="CollisionShape2D" parent="ExplosionStartZone"]
 position = Vector2(-1, -245)
