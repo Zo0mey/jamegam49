@@ -50,6 +50,6 @@ public partial class BlockPlacingArea : Node2D
         instantiatedBlock.Position = position;
         instantiatedBlock.BlockType = blockType;
         
-        AddChild(instantiatedBlock);
+        AddChild(instantiatedBlock, true);
     }
 }

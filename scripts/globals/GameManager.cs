@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
@@ -6,19 +7,28 @@ namespace GameJam49Game.scripts.globals;
 
 public partial class GameManager : Node2D
 {
-    [Export] public int MaxSpawnedBlocks = 1;
+    [Export] public int MaxSpawnedBlocks = 3;
     public int SpawnedBlocks;
     public List<BlockData> BlockDataList;
     private GameState _currentState = GameState.Phase1;
-    private bool canSpawnBlock => SpawnedBlocks < MaxSpawnedBlocks && _currentState == GameState.Phase1;
+    private bool CanSpawnBlock => SpawnedBlocks < MaxSpawnedBlocks && _currentState == GameState.Phase1;
 
     [Signal]
     public delegate void SpawnNextBlockEventHandler();
 
+    private Timer GetFlagTimer()
+    {
+        Timer flagTimer = new Timer();
+        flagTimer.WaitTime = 3.0f;
+        flagTimer.Autostart = false;
+        AddChild(flagTimer);
+
+        return flagTimer;
+    }
+    
     public void EmitSpawnNextBlock()
     {
-
-        if (canSpawnBlock)
+        if (CanSpawnBlock)
         {
             GD.Print("Emitting spawn next block");
             EmitSignal(SignalName.SpawnNextBlock);
@@ -44,33 +54,49 @@ public partial class GameManager : Node2D
         if (SpawnedBlocks >= MaxSpawnedBlocks && _currentState == GameState.Phase1)
         {
             _currentState = GameState.Phase2;
-            PackedScene playerScene = GD.Load<PackedScene>("res://scenes/player.tscn");
-            CharacterBody2D player = playerScene.Instantiate<CharacterBody2D>();
-            player.Scale = new Vector2(0.25f, 0.25f);
-            player.Position = new Vector2(450, 300);
-            AddChild(player);
-
-            var flagScene = GD.Load<PackedScene>("res://scenes/flag.tscn");
-            var flag = flagScene.Instantiate<Node2D>();
-
-            var blockParent = GetNode("/root/Main/PlayArea/BlockPlacingArea");
-            var highestBlock = blockParent.GetChildren()
-                .Where(child => child.Name == "SquareBlock")
-                .Cast<Node2D>()
-                .MaxBy(node => node.Position.Y);
-            flag.Position = highestBlock.Position;
-            AddChild(flag);
+            SpawnPlayer();
+            SpawnFlag();
 
             // TODO: Start explosions from bottom
         }
 
     }
 
-    private void GetHighestBlock()
+    private async void SpawnFlag()
     {
+        Timer flagTimer = GetFlagTimer();
+        flagTimer.Start();
+        await ToSignal(flagTimer, "timeout");
+        
+        var flagScene = GD.Load<PackedScene>("res://scenes/flag.tscn");
+        var flag = flagScene.Instantiate<Node2D>();
 
+        var blockParent = GetNode("/root/Main/PlayArea/BlockPlacingArea");
+        var highestBlock = blockParent.GetChildren()
+            .Where(child => child.GetType() == typeof(SquareBlock))
+            .Cast<SquareBlock>()
+            .MinBy(node => node.Position.Y);
+
+        var highestBlockSprite = highestBlock.GetNode<Sprite2D>("Sprite2D");
+
+        Vector2 flagPosition = new Vector2(
+            highestBlock.Position.X + highestBlockSprite.Texture.GetSize().X * highestBlockSprite.Scale.X / 8,
+            highestBlock.Position.Y - highestBlockSprite.Texture.GetSize().Y * highestBlockSprite.Scale.Y + 5);
+
+        flag.Position = flagPosition;
+        flag.Scale = new Vector2(0.5f, 0.5f);
+        blockParent.AddChild(flag);
     }
 
+    private void SpawnPlayer()
+    {
+        PackedScene playerScene = GD.Load<PackedScene>("res://scenes/player.tscn");
+        CharacterBody2D player = playerScene.Instantiate<CharacterBody2D>();
+        player.Scale = new Vector2(0.25f, 0.25f);
+        player.Position = new Vector2(450, 300);
+        AddChild(player);
+    }
+    
     // Start Game -> automatisch
     // 1 Phase: Place blocks
     // Track Blocks, ca. 20 blocks
