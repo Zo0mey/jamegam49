@@ -101,6 +101,7 @@ public partial class GameManager : Node2D
     {
         _currentState = GameState.Phase1;
         SpawnedBlocks = 0;
+        _flagPosition = Vector2.Zero;
         GetTree().ChangeSceneToFile("res://scenes/main.tscn");
     }
 

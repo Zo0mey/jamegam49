@@ -9,13 +9,14 @@ public partial class ExplosionStartZone : Area2D
 	[Export] public float VerticalWaitTime = 3;
 	[Export] public PackedScene ExplosionScene = GD.Load<PackedScene>("res://scenes/explosion.tscn");
 
-	public float CurrentExplosionHeight = float.MaxValue;
+	public float CurrentExplosionHeight;
 
 	private Timer _rowSpawnTimer = new Timer();
 	private CollisionShape2D _spawnArea = null!;
 
 	public override void _Ready()
 	{
+		CurrentExplosionHeight  = float.MaxValue;
 		_spawnArea = GetNode<CollisionShape2D>("SpawnArea");
 		_rowSpawnTimer.WaitTime = VerticalWaitTime;
 		AddChild(_rowSpawnTimer);
@@ -35,7 +36,7 @@ public partial class ExplosionStartZone : Area2D
 			{
 				_rowSpawnTimer.Start();
 				await ToSignal(_rowSpawnTimer, "timeout");
-				CurrentExplosionHeight = explosionY + 600;
+				CurrentExplosionHeight = explosionY + 620;
 				GD.Print("Current explosion height: ", CurrentExplosionHeight);
 				await SpawnExplosionRow(explosionY, explosionXStart, explosionXEnd);
 			}
