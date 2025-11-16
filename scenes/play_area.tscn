@@ -14,9 +14,11 @@ size = Vector2(1030, 506)
 position = Vector2(503, 52)
 
 [node name="LeftWall" parent="." instance=ExtResource("3_hk8fp")]
+visible = false
 position = Vector2(16, 231)
 
 [node name="RightWall" parent="." instance=ExtResource("3_hk8fp")]
+visible = false
 position = Vector2(1011, 231)
 
 [node name="Floor" parent="." instance=ExtResource("1_i1jbm")]

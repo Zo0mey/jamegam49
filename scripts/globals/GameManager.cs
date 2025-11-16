@@ -14,6 +14,7 @@ public partial class GameManager : Node2D
     private GameState _currentState = GameState.Phase1;
     private bool CanSpawnBlock => SpawnedBlocks < MaxSpawnedBlocks && _currentState == GameState.Phase1;
     private CharacterBody2D _player;
+    private Vector2 _flagPosition;
 
     [Signal]
     public delegate void SpawnNextBlockEventHandler();
@@ -40,15 +41,12 @@ public partial class GameManager : Node2D
 
         if (_currentState == GameState.Phase2)
         {
-            if (_explosionStartZone.CurrentExplosionHeight <= _player?.GlobalPosition.Y)
+            if (_explosionStartZone.CurrentExplosionHeight < _player?.GlobalPosition.Y)
             {
                 GD.Print($"Gameover: {_explosionStartZone.CurrentExplosionHeight} / {_player?.GlobalPosition.Y}");
-                _currentState = GameState.GameOver;
+                LoseGame();
             }
         }
-        
-        GD.Print($"Player global height: {_player?.GlobalPosition.Y}");
-        GD.Print($"Player local height: {_player?.Position.Y}");
     }
 
     private Timer GetFlagTimer()
@@ -77,6 +75,22 @@ public partial class GameManager : Node2D
             _currentState = GameState.Won;
             GD.Print("Win Game");
             var winGameDialog = GetNode<AcceptDialog>("/root/Main/WinGameDialog");
+            winGameDialog.DialogText = $"You won the game. You tower was {_flagPosition.Y} Meters high!";
+            winGameDialog.Confirmed += RestartGame;
+            winGameDialog.Canceled += RestartGame;
+            winGameDialog.Show();
+        }
+    }
+    
+    public void LoseGame()
+    {
+        if (_currentState == GameState.Phase2)
+        {
+            _currentState = GameState.GameOver;
+            GD.Print("Lose Game");
+            var winGameDialog = GetNode<AcceptDialog>("/root/Main/WinGameDialog");
+            winGameDialog.Title = "You Lost!";
+            winGameDialog.DialogText = "You lost the game. Try again.";
             winGameDialog.Confirmed += RestartGame;
             winGameDialog.Canceled += RestartGame;
             winGameDialog.Show();
@@ -131,6 +145,8 @@ public partial class GameManager : Node2D
             highestBlock.Position.X + highestBlockSprite.Texture.GetSize().X * highestBlockSprite.Scale.X / 8,
             highestBlock.Position.Y - highestBlockSprite.Texture.GetSize().Y * highestBlockSprite.Scale.Y + 5);
 
+        _flagPosition = flagPosition;
+
         flag.Position = flagPosition;
         flag.Scale = new Vector2(0.5f, 0.5f);
         blockParent.AddChild(flag);
@@ -142,7 +158,7 @@ public partial class GameManager : Node2D
         _player = playerScene.Instantiate<CharacterBody2D>();
         Node2D mainScene = GetNode<Node2D>("/root/Main");
         _player.Scale = new Vector2(0.1f, 0.1f);
-        _player.Position = new Vector2(450, 300);
+        _player.Position = new Vector2(350, 500);
         mainScene.AddChild(_player);
         var playerCamera = _player.GetNode<Camera2D>("Camera2D");
         playerCamera.MakeCurrent();

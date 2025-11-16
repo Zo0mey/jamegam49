@@ -31,4 +31,4 @@ scale = Vector2(1.3, 1.3)
 sprite_frames = SubResource("SpriteFrames_wbyhl")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(0.8, 0.8)
+zoom = Vector2(3, 3)

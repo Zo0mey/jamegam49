@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://cwihxpfvmoewj"]
+[gd_scene load_steps=6 format=3 uid="uid://cwihxpfvmoewj"]
 
 [ext_resource type="Script" uid="uid://biqy5mvkjif8p" path="res://scripts/BlockPlacingArea.cs" id="1_iryvl"]
 [ext_resource type="Script" uid="uid://binfk130qagrq" path="res://scripts/MovementLine.cs" id="2_t7inp"]
+[ext_resource type="Texture2D" uid="uid://dmvui7o1divoj" path="res://assets/ufo.png" id="3_bny34"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_iryvl"]
 
@@ -29,3 +30,8 @@ scale = Vector2(50, 1)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SpawnArea"]
 position = Vector2(0, -151)
 shape = SubResource("RectangleShape2D_t7inp")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -177)
+scale = Vector2(3.0468752, 3.0468752)
+texture = ExtResource("3_bny34")

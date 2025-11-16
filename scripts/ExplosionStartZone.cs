@@ -4,10 +4,9 @@ using System.Threading.Tasks;
 
 public partial class ExplosionStartZone : Area2D
 {
-	[Export] public CollisionShape2D spawnArea;
 	[Export] public float ExplosionWidth = 32;
 	[Export] public float ExplosionHeight = 32;
-	[Export] public float VerticalWaitTime = 2;
+	[Export] public float VerticalWaitTime = 3;
 	[Export] public PackedScene ExplosionScene = GD.Load<PackedScene>("res://scenes/explosion.tscn");
 
 	public float CurrentExplosionHeight = float.MaxValue;
@@ -22,20 +21,18 @@ public partial class ExplosionStartZone : Area2D
 
 	public async void StartExplosionsAsync()
 	{
+		var spawnArea = GetNode<CollisionShape2D>("CollisionShape2D");
 		var area = spawnArea.Shape.GetRect();
 		float explosionXStart = area.Position.X;
 		float explosionXEnd = explosionXStart + area.Size.X;
-		float explosionYStart = area.End.Y;
-		float explosionYEnd = area.Position.Y;
-		
-		GD.Print($"Current Explosion Global width {explosionXStart} {explosionXEnd}");
-		GD.Print($"Current Explosion width {spawnArea.Position.X} {spawnArea.Position.X + area.Size.X}");
+		float explosionYStart = spawnArea.Position.Y + area.End.Y * spawnArea.Scale.Y;
+		float explosionYEnd = spawnArea.Position.Y - area.End.Y * spawnArea.Scale.Y;
 
 		for (float explosionY = explosionYStart; explosionY > explosionYEnd; explosionY -= ExplosionHeight)
 		{
 			_rowSpawnTimer.Start();
 			await ToSignal(_rowSpawnTimer, "timeout");
-			CurrentExplosionHeight = explosionY;
+			CurrentExplosionHeight = explosionY + 600;
 			GD.Print("Current explosion height: ", CurrentExplosionHeight);
 			await SpawnExplosionRow(explosionY, explosionXStart, explosionXEnd);
 		}

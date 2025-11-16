@@ -36,9 +36,11 @@ public partial class BlockPlacingArea : Node2D
     public Vector2 GetRandomPositionInBlockSpawningArea()
     {
         var area = GetNode<Area2D>("SpawnArea");
+        var collisionShape = area.GetNode<CollisionShape2D>("CollisionShape2D");
+        var size = collisionShape.Shape.GetRect();
         var scale = area.Scale;
 
-        var randomXPos = _rng.RandfRange(area.Position.X, area.Position.X + scale.X);
+        var randomXPos = _rng.RandfRange(area.Position.X - size.End.X * scale.X, area.Position.X + size.End.X * scale.X);
         
         return new Vector2(randomXPos, area.Position.Y);
     }
@@ -48,7 +50,15 @@ public partial class BlockPlacingArea : Node2D
         PackedScene squareBlockScene = GD.Load<PackedScene>("res://scenes/square_block.tscn");
         SquareBlock instantiatedBlock = squareBlockScene.Instantiate<SquareBlock>();
         float randomScale = _rng.RandfRange(0.5f, 2.5f);
-        instantiatedBlock.Scale = new Vector2(randomScale, randomScale);
+
+        if (_gameManager.SpawnedBlocks == _gameManager.MaxSpawnedBlocks) 
+        {
+            instantiatedBlock.Scale = new Vector2(1, 1);
+        }
+        else
+        {
+            instantiatedBlock.Scale = new Vector2(randomScale, randomScale);
+        }
         instantiatedBlock.Position = position;
         instantiatedBlock.BlockType = blockType;
         
