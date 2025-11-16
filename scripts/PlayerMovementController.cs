@@ -199,6 +199,14 @@ public partial class PlayerMovementController : CharacterBody2D
 
 				if (isOnWallOnly)
 				{
+					if (_currJumpState == JumpState.Ascent)
+					{
+						break;
+					}
+					if (!leftPressed && !rightPressed)
+					{
+						break;
+					}
 					_currState = State.Wall;
 					break;
 				}
@@ -239,6 +247,11 @@ public partial class PlayerMovementController : CharacterBody2D
 			case State.Wall:
 				if (isOnWallOnly)
 				{
+					if (!leftPressed && !rightPressed)
+					{
+						_currState = State.Airborne;
+						break;
+					}
 					if (jumpJustPressed || _jumpBuffered) // Jump input received
 					{
 						_currState = State.Airborne;
@@ -273,7 +286,7 @@ public partial class PlayerMovementController : CharacterBody2D
 				// Conditions to exit ascent phase:
 				// 1. Landed on the floor.
 				// 2. Vertical velocity was externally disrupted (e.g., hit a ceiling).
-				if (isOnWallOnly || onFloor || (Velocity.Y != _prevVelocity.Y && Velocity.Y > _prevVelocity.Y)) // Second condition checks for unexpected halt/downward push
+				if (_currState == State.Wall || onFloor || (Velocity.Y != _prevVelocity.Y && Velocity.Y > _prevVelocity.Y)) // Second condition checks for unexpected halt/downward push
 				{
 					ResetJumpHeightTimer(); // Stop tracking jump hold time
 					_currJumpState = JumpState.NotJumping;
@@ -315,7 +328,7 @@ public partial class PlayerMovementController : CharacterBody2D
 				// 1. Landed on the floor.
 				// 2. Hang time expired.
 				// 3. Vertical velocity was externally disrupted.
-				if (isOnWallOnly || onFloor || _jumpHangTimer.TimeLeft == 0 || (Velocity.Y != _prevVelocity.Y && Velocity.Y > 0)) // Added check for downward disruption
+				if (_currState == State.Wall || onFloor || _jumpHangTimer.TimeLeft == 0 || (Velocity.Y != _prevVelocity.Y && Velocity.Y > 0)) // Added check for downward disruption
 				{
 					ResetJumpHangTimer();   // Stop hang timer
 					ResetJumpHeightTimer(); // Ensure jump height timer is also reset

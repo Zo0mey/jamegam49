@@ -19,8 +19,14 @@ animations = [{
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_g2els")
+MaxRunSpeed = 400.0
+MaxAirRunSpeed = 400.0
 DoubleJumps = 0
 Dashes = 2
+MaxJumpHeight = 100.0
+HangTime = 1.0
+SlideSpeed = 9000.0
+JumpOffSpeed = 500.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -0.5)
