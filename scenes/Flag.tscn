@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://cshymd0ckeds5"]
+
+[ext_resource type="Texture2D" uid="uid://do2aws0olr7ws" path="res://assets/Flag.png" id="1_hdgai"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_step0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_hdgai")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Flag" type="Node2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_step0")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
+polygon = PackedVector2Array(0, -16, 0, -16, -34, -16, 0, -50, 5, -50, 5, 32, 1, 32)

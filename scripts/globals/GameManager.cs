@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 namespace GameJam49Game.scripts.globals;
@@ -48,9 +49,25 @@ public partial class GameManager : Node2D
             player.Scale = new Vector2(0.25f, 0.25f);
             player.Position = new Vector2(450, 300);
             AddChild(player);
-            // TODO: Spawn flag -> Find highest Block
+
+            var flagScene = GD.Load<PackedScene>("res://scenes/flag.tscn");
+            var flag = flagScene.Instantiate<Node2D>();
+
+            var blockParent = GetNode("/root/Main/PlayArea/BlockPlacingArea");
+            var highestBlock = blockParent.GetChildren()
+                .Where(child => child.Name == "SquareBlock")
+                .Cast<Node2D>()
+                .MaxBy(node => node.Position.Y);
+            flag.Position = highestBlock.Position;
+            AddChild(flag);
+
             // TODO: Start explosions from bottom
         }
+
+    }
+
+    private void GetHighestBlock()
+    {
 
     }
 
