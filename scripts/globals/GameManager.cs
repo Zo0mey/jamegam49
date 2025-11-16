@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Godot;
 
 namespace GameJam49Game.scripts.globals;
@@ -12,10 +13,41 @@ public partial class GameManager : Node2D
     public List<BlockData> BlockDataList;
     private GameState _currentState = GameState.Phase1;
     private bool CanSpawnBlock => SpawnedBlocks < MaxSpawnedBlocks && _currentState == GameState.Phase1;
+    private CharacterBody2D _player;
 
     [Signal]
     public delegate void SpawnNextBlockEventHandler();
-    
+
+    private ExplosionStartZone _explosionStartZone;
+
+
+    public override void _Ready()
+    {
+        _explosionStartZone = GetNode<ExplosionStartZone>("/root/Main/PlayArea/ExplosionStartZone");
+        if (_explosionStartZone is null)
+        {
+            GD.PrintErr($"Couldn't get {nameof(ExplosionStartZone)}");
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        if (SpawnedBlocks >= MaxSpawnedBlocks && _currentState == GameState.Phase1)
+        {
+            _currentState = GameState.Phase2;
+            StartPhase2();
+        }
+
+        if (_currentState == GameState.Phase2)
+        {
+            if (_explosionStartZone.CurrentExplosionHeight <= _player?.GlobalPosition.Y)
+            {
+                GD.Print($"Gameover: {_explosionStartZone.CurrentExplosionHeight} / {_player?.GlobalPosition.Y}");
+                _currentState = GameState.GameOver;
+            }
+        }
+    }
+
     private Timer GetFlagTimer()
     {
         Timer flagTimer = new Timer();
@@ -25,7 +57,7 @@ public partial class GameManager : Node2D
 
         return flagTimer;
     }
-    
+
     public void EmitSpawnNextBlock()
     {
         if (CanSpawnBlock)
@@ -34,11 +66,12 @@ public partial class GameManager : Node2D
             EmitSignal(SignalName.SpawnNextBlock);
         }
     }
-    
+
     public void WinGame()
     {
         if (_currentState == GameState.Phase2)
         {
+            _currentState = GameState.Won;
             GD.Print("Win Game");
             var winGameDialog = GetNode<AcceptDialog>("/root/Main/WinGameDialog");
             winGameDialog.Confirmed += RestartGame;
@@ -68,25 +101,18 @@ public partial class GameManager : Node2D
         return blockData;
     }
 
-    public override void _Process(double delta)
-    {
-        if (SpawnedBlocks >= MaxSpawnedBlocks && _currentState == GameState.Phase1)
-        {
-            _currentState = GameState.Phase2;
-            SpawnPlayer();
-            SpawnFlag();
-
-            // TODO: Start explosions from bottom
-        }
-
-    }
-
-    private async void SpawnFlag()
+    private async void StartPhase2()
     {
         Timer flagTimer = GetFlagTimer();
         flagTimer.Start();
         await ToSignal(flagTimer, "timeout");
-        
+        await SpawnFlag();
+        SpawnPlayer();
+        _explosionStartZone.StartExplosionsAsync();
+    }
+
+    private async Task SpawnFlag()
+    {
         var flagScene = GD.Load<PackedScene>("res://scenes/flag.tscn");
         var flag = flagScene.Instantiate<Node2D>();
 
@@ -110,13 +136,13 @@ public partial class GameManager : Node2D
     private void SpawnPlayer()
     {
         PackedScene playerScene = GD.Load<PackedScene>("res://scenes/player.tscn");
-        CharacterBody2D player = playerScene.Instantiate<CharacterBody2D>();
+        _player = playerScene.Instantiate<CharacterBody2D>();
         Node2D mainScene = GetNode<Node2D>("/root/Main");
-        player.Scale = new Vector2(0.25f, 0.25f);
-        player.Position = new Vector2(450, 300);
-        mainScene.AddChild(player);
+        _player.Scale = new Vector2(0.25f, 0.25f);
+        _player.Position = new Vector2(450, 300);
+        mainScene.AddChild(_player);
     }
-    
+
     // Start Game -> automatisch
     // 1 Phase: Place blocks
     // Track Blocks, ca. 20 blocks
