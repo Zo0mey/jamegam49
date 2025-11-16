@@ -20,15 +20,12 @@ scale = Vector2(1.0000004, 1)
 shape = SubResource("RectangleShape2D_iryvl")
 
 [node name="Line2D" type="Line2D" parent="MovementLine"]
-position = Vector2(0.009229302, -18.48)
-scale = Vector2(0.9010189, 3.1)
-points = PackedVector2Array(-10.02, 9.8, 9.977317, 9.8)
-width = 1.0
-default_color = Color(1, 0, 0.13333334, 1)
+points = PackedVector2Array(-10.000001, 0, 9.9800005, 0)
 
 [node name="SpawnArea" type="Area2D" parent="."]
 position = Vector2(0, -60)
 scale = Vector2(50, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SpawnArea"]
+position = Vector2(0, -151)
 shape = SubResource("RectangleShape2D_t7inp")

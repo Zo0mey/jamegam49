@@ -14,3 +14,7 @@ size = Vector2i(206, 120)
 ok_button_text = "Restart"
 dialog_text = "You have won the game.
 Congrats!"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(526, 241)
+zoom = Vector2(0.8, 0.8)

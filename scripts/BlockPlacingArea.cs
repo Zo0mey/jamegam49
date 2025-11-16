@@ -47,6 +47,8 @@ public partial class BlockPlacingArea : Node2D
     {
         PackedScene squareBlockScene = GD.Load<PackedScene>("res://scenes/square_block.tscn");
         SquareBlock instantiatedBlock = squareBlockScene.Instantiate<SquareBlock>();
+        float randomScale = _rng.RandfRange(0.5f, 2.5f);
+        instantiatedBlock.Scale = new Vector2(randomScale, randomScale);
         instantiatedBlock.Position = position;
         instantiatedBlock.BlockType = blockType;
         

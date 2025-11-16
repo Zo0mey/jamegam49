@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://dld3vs0wvpku6" path="res://scripts/ExplosionStartZone.cs" id="4_b00k2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hk8fp"]
-size = Vector2(1030, 534)
+size = Vector2(1030, 506)
 
 [node name="PlayArea" type="Node2D"]
 
@@ -17,7 +17,7 @@ position = Vector2(503, 52)
 position = Vector2(16, 231)
 
 [node name="RightWall" parent="." instance=ExtResource("3_hk8fp")]
-position = Vector2(1009, 230)
+position = Vector2(1011, 231)
 
 [node name="Floor" parent="." instance=ExtResource("1_i1jbm")]
 position = Vector2(513, 639)
@@ -28,5 +28,5 @@ script = ExtResource("4_b00k2")
 spawnArea = NodePath("SpawnArea")
 
 [node name="SpawnArea" type="CollisionShape2D" parent="ExplosionStartZone"]
-position = Vector2(0, -259)
+position = Vector2(-1, -245)
 shape = SubResource("RectangleShape2D_hk8fp")

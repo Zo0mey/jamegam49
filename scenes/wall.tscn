@@ -7,7 +7,7 @@ rough = true
 bounce = 0.1
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c41w6"]
-size = Vector2(32, 15)
+size = Vector2(32, 16)
 
 [node name="Wall" type="StaticBody2D"]
 physics_material_override = SubResource("PhysicsMaterial_kuqtn")

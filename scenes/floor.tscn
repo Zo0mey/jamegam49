@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://cu0i50bx8su3k"]
+[gd_scene load_steps=5 format=3 uid="uid://cu0i50bx8su3k"]
 
 [ext_resource type="Texture2D" uid="uid://cp31lcc10kg63" path="res://assets/Floor.png" id="1_ukw5w"]
+[ext_resource type="Texture2D" uid="uid://duwav31660572" path="res://assets/SandTile.png" id="2_kuqtn"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_kuqtn"]
 rough = true
@@ -17,6 +18,16 @@ scale = Vector2(32, 1)
 shape = SubResource("RectangleShape2D_c41w6")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
 texture_filter = 1
 scale = Vector2(32, 4)
 texture = ExtResource("1_ukw5w")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="."]
+offset_left = -513.0
+offset_top = -8.0
+offset_right = 514.0
+offset_bottom = 7.0
+texture = ExtResource("2_kuqtn")
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1

@@ -8,7 +8,7 @@ namespace GameJam49Game.scripts.globals;
 
 public partial class GameManager : Node2D
 {
-    [Export] public int MaxSpawnedBlocks = 1;
+    [Export] public int MaxSpawnedBlocks = 5;
     public int SpawnedBlocks;
     public List<BlockData> BlockDataList;
     private GameState _currentState = GameState.Phase1;
@@ -138,9 +138,11 @@ public partial class GameManager : Node2D
         PackedScene playerScene = GD.Load<PackedScene>("res://scenes/player.tscn");
         _player = playerScene.Instantiate<CharacterBody2D>();
         Node2D mainScene = GetNode<Node2D>("/root/Main");
-        _player.Scale = new Vector2(0.25f, 0.25f);
+        _player.Scale = new Vector2(0.1f, 0.1f);
         _player.Position = new Vector2(450, 300);
         mainScene.AddChild(_player);
+        var playerCamera = _player.GetNode<Camera2D>("Camera2D");
+        playerCamera.MakeCurrent();
     }
 
     // Start Game -> automatisch

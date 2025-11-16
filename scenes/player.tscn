@@ -19,14 +19,8 @@ animations = [{
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_g2els")
-Gravity = 1000.0
-MaxRunSpeed = 500.0
 DoubleJumps = 0
 Dashes = 2
-MaxJumpHeight = 300.0
-HangTime = 0.1
-SlideSpeed = 10000.0
-JumpOffSpeed = 500.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_hondd")
@@ -35,3 +29,4 @@ shape = SubResource("RectangleShape2D_hondd")
 sprite_frames = SubResource("SpriteFrames_wbyhl")
 
 [node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(3, 3)
